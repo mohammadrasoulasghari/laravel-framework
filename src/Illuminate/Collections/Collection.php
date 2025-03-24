@@ -1921,4 +1921,28 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     {
         unset($this->items[$key]);
     }
+
+    /**
+     * Filter items by the given regular expression pattern.
+     *
+     * @param  string  $pattern  The regular expression pattern
+     * @param  string|null  $key  The key to filter on, or a callback
+     * @return static
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function filterByRegex($pattern, $key = null)
+    {
+        if ($key === null) {
+            return $this->filter(function ($value) use ($pattern) {
+                return is_string($value) && preg_match($pattern, $value);
+            });
+        }
+
+        return $this->filter(function ($item) use ($pattern, $key) {
+            $value = data_get($item, $key);
+
+            return is_string($value) && preg_match($pattern, $value);
+        });
+    }
 }

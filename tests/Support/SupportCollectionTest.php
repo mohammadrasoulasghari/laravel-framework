@@ -5639,6 +5639,28 @@ class SupportCollectionTest extends TestCase
         $this->assertNull($collection->percentage(fn ($value) => $value === 1));
     }
 
+    public function testFilterByRegex()
+    {
+        $collection = collect(['apple', 'banana', 'orange', 'pear', 'pineapple']);
+        $filtered = $collection->filterByRegex('/^p/');
+        $this->assertEquals(['3' => 'pear', '4' => 'pineapple'], $filtered->all());
+
+        $collection = collect([
+            ['name' => 'John', 'email' => 'john@example.com'],
+            ['name' => 'Jane', 'email' => 'jane@gmail.com'],
+        ]);
+        $filtered = $collection->filterByRegex('/@gmail\.com$/', 'email');
+        $this->assertCount(1, $filtered);
+        $this->assertEquals('jane@gmail.com', $filtered->first()['email']);
+
+        $collection = collect([
+            ['user' => ['profile' => ['bio' => 'PHP Developer']]],
+            ['user' => ['profile' => ['bio' => 'JavaScript Developer']]],
+        ]);
+        $filtered = $collection->filterByRegex('/PHP/', 'user.profile.bio');
+        $this->assertCount(1, $filtered);
+    }
+
     /**
      * Provides each collection class, respectively.
      *
@@ -5651,6 +5673,7 @@ class SupportCollectionTest extends TestCase
             [LazyCollection::class],
         ];
     }
+
 }
 
 class TestSupportCollectionHigherOrderItem
